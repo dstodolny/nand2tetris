@@ -6,6 +6,9 @@
 /**
  * Exclusive-or gate:
  * out = not (a == b)
+ * (a ^ ~b) v (~a ^ b) = ((a ^ ~b) v ~a) ^ ((a ^ ~b) v b) =
+ * (a v ~a) ^ (~a v ~b) ^ (a v b) ^ (~b v b) = 
+ * (~a v ~b) ^ (a v b) = ~(a ^ b) ^ (a v b) 
  */
 
 CHIP Xor {
@@ -13,5 +16,7 @@ CHIP Xor {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    Nand(a=a, b=b, out=AnandB);
+    Or(a=a, b=b, out=AorB);
+    And(a=AnandB, b=AorB, out=out);
 }
