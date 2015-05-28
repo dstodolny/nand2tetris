@@ -12,7 +12,7 @@ COMP = { "0" => "0101010", "1" => "0111111", "-1" => "0111010",
          "M" => "1110000", "!M" => "1110001", "-M" => "1110011",
          "M+1" => "1110111", "M-1" => "1110010", "D+M" => "1000010",
          "D-M" => "1010011", "M-D" => "1000111", "D&M" => "1000000",
-         "D|M" => "1010101" }
+         "D|M" => "1010101", nil => "0000000" }
 
 JUMP = { nil => "000", "JGT" => "001", "JEQ" => "010",
          "JGE" => "011", "JLT" => "100", "JNE" => "101",
@@ -54,11 +54,16 @@ class Parser
   end
 
   def dest
+    return nil unless @current_command.include?("=")
     @current_command.split(";").first.split("=").first
   end
 
   def comp
-    @current_command.split(";").first.split("=")[1]
+    if @current_command.include?("=")
+      @current_command.split(";").first.split("=")[1]
+    else
+      @current_command.split(";").first
+    end
   end
 
   def jump
@@ -76,7 +81,10 @@ target = File.open(filename.split(".").first + ".hack", "w")
 until p.no_more_commands?
   p.advance
   if p.command_type == "C_COMMAND"
-    target.write("111" + COMP[p.comp] + DEST[p.dest] + JUMP[p.jump])
+    target.write("111")
+    target.write COMP[p.comp]
+    target.write DEST[p.dest]
+    target.write JUMP[p.jump]
   else
     target.write("%016b" % p.symbol.to_i)
   end
